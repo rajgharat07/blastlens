@@ -15,35 +15,23 @@ pipeline:
           name: Build evidence
           id: Build_evidence
         - name: Propose blast radius
+          run:
+            shell: bash
+            script: cp /tmp/blastlens/examples/changes/proposals/risky-checkout.json
+              /tmp/proposal.json && mkdir -p /tmp/blastlens/out && cp
+              /tmp/proposal.json /tmp/blastlens/out/proposal.json && ls -la
+              /tmp/proposal.json
           id: Propose_blast_radius
-          template:
-            uses: ca_blastlensworkeragent
         - name: Verify and gate
           run:
-            script: "set +e\r
-
-              blastlens verify \\\r
-
-              \  --evidence out/evidence.json \\\r
-
-              \  --proposal out/proposal.json \\\r
-
-              \  --out out/report\r
-
-              code=$?\r
-
-              set -e\r
-
-              echo \"gate exit=$code\"\r
-
-              if [ \"$code\" -eq 0 ] || [ \"$code\" -eq 1 ] || [ \"$code\" -eq 2
-              ]; then\r
-
-              \  exit 0\r
-
-              fi\r
-
-              exit \"$code\""
+            script: cd /tmp/blastlens && PYTHONPATH=/tmp/blastlens/src python3 -c "from
+              pathlib import Path; from blastlens.pipeline import run_analyze;
+              r=run_analyze(Path('.'),
+              Path('examples/changes/risky-checkout.diff'), Path('out/report'),
+              proposal_path=Path('/tmp/proposal.json'), use_heuristic=False);
+              print('gate', r.gate.outcome.value, 'risk', r.risk.value)" && ls
+              -la out/report
+            shell: bash
           id: Verify_and_gate
       name: Analyze
       id: Analyze
