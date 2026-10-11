@@ -1,0 +1,59 @@
+pipeline:
+  stages:
+    - steps:
+        - run:
+            script: "pip install -e .\r
+
+              mkdir -p out\r
+
+              blastlens evidence \\\r
+
+              \  --repo . \\\r
+
+              \  --change examples/changes/risky-checkout.diff \\\r
+
+              \  --out out/evidence.json\r
+
+              ls -la out/evidence.json"
+          name: Build evidence
+          id: Build_evidence
+        - name: Propose blast radius
+          id: Propose_blast_radius
+          template:
+            uses: ca_blastlensworkeragent
+        - name: Verify and gate
+          run:
+            script: "set +e\r
+
+              blastlens verify \\\r
+
+              \  --evidence out/evidence.json \\\r
+
+              \  --proposal out/proposal.json \\\r
+
+              \  --out out/report\r
+
+              code=$?\r
+
+              set -e\r
+
+              echo \"gate exit=$code\"\r
+
+              if [ \"$code\" -eq 0 ] || [ \"$code\" -eq 1 ] || [ \"$code\" -eq 2
+              ]; then\r
+
+              \  exit 0\r
+
+              fi\r
+
+              exit \"$code\""
+          id: Verify_and_gate
+      name: Analyze
+      id: Analyze
+      clone:
+        ref:
+          type: branch
+          name: main
+        enabled: true
+        repo: rajgharat07/blastlens
+        connector: blastlens_github
