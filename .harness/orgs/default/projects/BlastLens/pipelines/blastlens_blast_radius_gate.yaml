@@ -2,66 +2,33 @@ pipeline:
   stages:
     - steps:
         - run:
-            script: "set -e\r
-
-              echo \"PWD=$(pwd)\"\r
+            script: "pwd\r
 
               ls -la\r
 
               \r
 
-              # Harness often clones into /harness or a repo subfolder — land on
-              pyproject.toml\r
+              cd /harness 2>/dev/null || true\r
 
-              if [ -f pyproject.toml ]; then\r
+              pwd\r
 
-              \  ROOT=\".\"\r
-
-              elif [ -f blastlens/pyproject.toml ]; then\r
-
-              \  ROOT=\"blastlens\"\r
-
-              \  cd \"$ROOT\"\r
-
-              elif [ -f /harness/pyproject.toml ]; then\r
-
-              \  cd /harness\r
-
-              else\r
-
-              \  echo \"Searching for pyproject.toml...\"\r
-
-              \  ROOT=$(find . -maxdepth 3 -name pyproject.toml | head -n 1 |
-              xargs dirname)\r
-
-              \  echo \"Found ROOT=$ROOT\"\r
-
-              \  cd \"$ROOT\"\r
-
-              fi\r
+              ls -la\r
 
               \r
 
-              echo \"Using repo root: $(pwd)\"\r
+              python3 -m pip install --user -e .\r
 
-              ls -la pyproject.toml\r
+              export PATH=\"$HOME/.local/bin:$PATH\"\r
 
               \r
-
-              python3 -m pip install -e .\r
 
               mkdir -p out\r
-
-              \r
-
-              # one line — safer on sh than backslash continuations\r
 
               blastlens evidence --repo . --change
               examples/changes/risky-checkout.diff --out out/evidence.json\r
 
-              \r
-
               ls -la out/evidence.json"
+            shell: bash
           name: Build evidence
           id: Build_evidence
         - name: Propose blast radius
