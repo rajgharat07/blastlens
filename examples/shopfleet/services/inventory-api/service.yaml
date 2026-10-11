@@ -1,0 +1,8 @@
+name: inventory-api
+labels:
+  team: commerce
+depends_on: []
+configs:
+  - shared-pricing
+env:
+  DB_NAME: inventory

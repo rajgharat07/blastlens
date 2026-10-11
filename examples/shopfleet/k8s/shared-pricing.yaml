@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shared-pricing
+data:
+  table: "v1"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: checkout-secrets
+type: Opaque
+stringData:
+  api_key: demo-only-not-real

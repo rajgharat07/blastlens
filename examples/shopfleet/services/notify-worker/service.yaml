@@ -1,0 +1,8 @@
+name: notify-worker
+labels:
+  team: growth
+depends_on:
+  - checkout-api
+configs: []
+env:
+  CHECKOUT_HOST: checkout-api

@@ -1,0 +1,30 @@
+diff --git a/services/checkout-api/service.yaml b/services/checkout-api/service.yaml
+index 1111111..2222222 100644
+--- a/services/checkout-api/service.yaml
++++ b/services/checkout-api/service.yaml
+@@ -1,11 +1,12 @@
+ name: checkout-api
+ labels:
+   team: commerce
+ depends_on:
+   - inventory-api
+   - payments-api
++  # retry budget tightened — callers may see more 503s under load
+ configs:
+   - shared-pricing
+ env:
+   INVENTORY_HOST: inventory-api
+   PAYMENTS_HOST: payments-api
+diff --git a/k8s/checkout-api.yaml b/k8s/checkout-api.yaml
+index 3333333..4444444 100644
+--- a/k8s/checkout-api.yaml
++++ b/k8s/checkout-api.yaml
+@@ -12,7 +12,7 @@ spec:
+     spec:
+       containers:
+         - name: app
+-          image: shopfleet/checkout-api:1.2.0
++          image: shopfleet/checkout-api:1.3.0
+           envFrom:
+             - configMapRef:
+                 name: shared-pricing

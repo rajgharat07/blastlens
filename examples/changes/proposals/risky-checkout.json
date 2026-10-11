@@ -1,0 +1,49 @@
+{
+  "changed_services": ["service:checkout-api"],
+  "impacts": [
+    {
+      "target": "service:checkout-api",
+      "severity": "high",
+      "rationale": "deployment image bump and retry budget change on checkout-api",
+      "failure_modes": ["elevated 503 rate", "cart abandon spike"]
+    },
+    {
+      "target": "service:payments-api",
+      "severity": "critical",
+      "rationale": "checkout-api directly depends_on payments-api; payment auth path may see retry storms",
+      "failure_modes": ["double-charge risk under retries", "payment timeout cascade"]
+    },
+    {
+      "target": "service:inventory-api",
+      "severity": "medium",
+      "rationale": "checkout-api depends_on inventory-api for stock reservation",
+      "failure_modes": ["oversell if reservation path flakes"]
+    },
+    {
+      "target": "service:notify-worker",
+      "severity": "low",
+      "rationale": "notify-worker depends on checkout-api events",
+      "failure_modes": ["delayed order emails"]
+    },
+    {
+      "target": "service:analytics-api",
+      "severity": "high",
+      "rationale": "possible telemetry fan-out (not declared in manifests)",
+      "failure_modes": ["silent metric loss"]
+    },
+    {
+      "target": "service:legacy-billing",
+      "severity": "critical",
+      "rationale": "direct dependency on legacy-billing via depends_on",
+      "failure_modes": ["checkout cannot price orders"]
+    },
+    {
+      "target": "totally invalid!!",
+      "severity": "high",
+      "rationale": "should be dropped as malformed",
+      "failure_modes": []
+    }
+  ],
+  "narrative": "Worker-agent-shaped proposal for the risky checkout image bump: payments and inventory are declared dependencies; analytics is speculative; legacy-billing claim asserts a direct depends_on that manifests do not declare.",
+  "proposer": "worker-agent"
+}

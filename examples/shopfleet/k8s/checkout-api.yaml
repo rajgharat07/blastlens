@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-api
+spec:
+  selector:
+    matchLabels:
+      app: checkout-api
+  template:
+    metadata:
+      labels:
+        app: checkout-api
+    spec:
+      containers:
+        - name: app
+          image: shopfleet/checkout-api:1.2.0
+          envFrom:
+            - configMapRef:
+                name: shared-pricing
+            - secretRef:
+                name: checkout-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkout-api
+spec:
+  selector:
+    app: checkout-api
+  ports:
+    - port: 8080

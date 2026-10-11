@@ -1,0 +1,11 @@
+name: checkout-api
+labels:
+  team: commerce
+depends_on:
+  - inventory-api
+  - payments-api
+configs:
+  - shared-pricing
+env:
+  INVENTORY_HOST: inventory-api
+  PAYMENTS_HOST: payments-api

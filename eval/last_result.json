@@ -1,0 +1,26 @@
+{
+  "fixture": "examples/shopfleet + risky-checkout",
+  "verified_targets": [
+    "service:checkout-api",
+    "service:inventory-api",
+    "service:notify-worker",
+    "service:payments-api"
+  ],
+  "known_good": [
+    "service:checkout-api",
+    "service:inventory-api",
+    "service:notify-worker",
+    "service:payments-api"
+  ],
+  "true_positives": [
+    "service:checkout-api",
+    "service:inventory-api",
+    "service:notify-worker",
+    "service:payments-api"
+  ],
+  "false_positives": [],
+  "false_negatives": [],
+  "precision": 1.0,
+  "recall": 1.0,
+  "notes": "Eval only covers Verified precision/recall against declared edges in the bundled fixture. It does not claim production accuracy."
+}

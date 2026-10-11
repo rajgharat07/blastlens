@@ -1,0 +1,10 @@
+# Service criticality used by scoring/gate heuristics (not runtime truth).
+services:
+  checkout-api:
+    criticality: high
+  inventory-api:
+    criticality: medium
+  payments-api:
+    criticality: critical
+  notify-worker:
+    criticality: low

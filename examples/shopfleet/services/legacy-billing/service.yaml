@@ -1,0 +1,8 @@
+# Orphan service — present in graph, NOT depended on by checkout-api.
+# Used so verifier can Drop claims that invent a direct depends_on edge.
+name: legacy-billing
+labels:
+  team: fintech-legacy
+depends_on: []
+configs: []
+env: {}
