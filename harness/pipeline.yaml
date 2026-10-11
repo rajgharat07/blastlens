@@ -1,0 +1,77 @@
+# Pipeline-first BlastLens gate for Harness.
+# Shared workspace files transfer data between steps — not a laptop CLI over the network.
+#
+# Flow:
+#   1) Checkout
+#   2) Install BlastLens + build evidence.json
+#   3) Worker Agent reads evidence + diff, writes proposal.json
+#   4) blastlens verify → report + gate exit code
+#
+# Wire this into a Harness CD/CI pipeline. Replace <+...> expressions for your account.
+
+pipeline:
+  name: blastlens-blast-radius-gate
+  identifier: blastlens_blast_radius_gate
+  projectIdentifier: <+input>
+  orgIdentifier: <+input>
+  tags:
+    purpose: blast-radius
+  stages:
+    - stage:
+        name: Analyze
+        identifier: analyze
+        type: CI
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Build evidence
+                  identifier: build_evidence
+                  spec:
+                    shell: Sh
+                    command: |-
+                      pip install -e .
+                      mkdir -p out
+                      blastlens evidence \
+                        --repo "${BLASTLENS_REPO:-.}" \
+                        --change "${BLASTLENS_CHANGE:-examples/changes/risky-checkout.diff}" \
+                        --out out/evidence.json
+                      echo "evidence ready at out/evidence.json"
+
+              - step:
+                  # Harness AI Worker Agent step — configure model connector in UI.
+                  # Prompt template lives in harness/worker-agent-prompt.md
+                  type: AIAgent
+                  name: Propose blast radius
+                  identifier: propose_blast_radius
+                  spec:
+                    agentRef: blastlens_worker_agent
+                    # Agent must write out/proposal.json matching ImpactProposal schema
+                    # (see harness/proposal.schema.json). Inputs are workspace files above.
+
+              - step:
+                  type: Run
+                  name: Verify and gate
+                  identifier: verify_and_gate
+                  spec:
+                    shell: Sh
+                    command: |-
+                      blastlens verify \
+                        --evidence out/evidence.json \
+                        --proposal out/proposal.json \
+                        --out out/report
+                      # exit codes: 0=pass, 2=approval-required, 1=blocked
+                      # Map non-zero to Harness approval / failure per your policy.
+
+              - step:
+                  type: Run
+                  name: Publish report
+                  identifier: publish_report
+                  spec:
+                    shell: Sh
+                    command: |-
+                      echo "report.json:" && head -c 400 out/report/report.json
+                      echo ""
+                      echo "Open out/report/report.html as a pipeline artifact."

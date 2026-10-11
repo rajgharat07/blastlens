@@ -1,0 +1,38 @@
+{
+  "name": "blastlens",
+  "version": "0.1.0",
+  "description": "Evidence-first blast-radius tools for Harness Worker Agents",
+  "integration": "pipeline-first",
+  "notes": "Preferred path: shared workspace files between Run steps and the Worker Agent. A tool manifest alone does not make a laptop CLI remotely callable. Optional MCP exposure can wrap the same functions later.",
+  "tools": [
+    {
+      "name": "blastlens_build_evidence",
+      "description": "Build deterministic dependency evidence for a repo + change diff.",
+      "cli": "blastlens evidence --repo <repo> --change <change> --out <out>",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "repo": { "type": "string" },
+          "change": { "type": "string" },
+          "out": { "type": "string" }
+        },
+        "required": ["repo", "change", "out"]
+      }
+    },
+    {
+      "name": "blastlens_verify_proposal",
+      "description": "Verify an impact proposal JSON against evidence; write report + gate.",
+      "cli": "blastlens verify --evidence <evidence> --proposal <proposal> --out <out>",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "repo": { "type": "string" },
+          "change": { "type": "string" },
+          "proposal": { "type": "string" },
+          "out": { "type": "string" }
+        },
+        "required": ["repo", "change", "proposal", "out"]
+      }
+    }
+  ]
+}

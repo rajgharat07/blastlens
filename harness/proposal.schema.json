@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ImpactProposal",
+  "type": "object",
+  "required": ["impacts", "proposer"],
+  "properties": {
+    "changed_services": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "impacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "severity"],
+        "properties": {
+          "target": { "type": "string", "description": "kind:name, e.g. service:payments-api" },
+          "severity": { "enum": ["low", "medium", "high", "critical"] },
+          "rationale": { "type": "string" },
+          "failure_modes": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "narrative": { "type": "string" },
+    "proposer": { "type": "string" }
+  }
+}
