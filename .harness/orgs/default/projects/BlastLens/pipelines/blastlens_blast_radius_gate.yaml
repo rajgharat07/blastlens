@@ -2,15 +2,15 @@ pipeline:
   stages:
     - steps:
         - run:
-            script: python3 -m pip install --user
-              "git+https://github.com/rajgharat07/blastlens.git@main" && export
-              PATH="$HOME/.local/bin:$PATH" && rm -rf /tmp/blastlens && git
-              clone --depth 1 -b main
+            script: rm -rf /tmp/blastlens && git clone --depth 1 -b main
               https://github.com/rajgharat07/blastlens.git /tmp/blastlens && cd
-              /tmp/blastlens && mkdir -p out && blastlens evidence --repo .
-              --change examples/changes/risky-checkout.diff --out
-              out/evidence.json && ls -la out/evidence.json && cp
-              out/evidence.json /tmp/evidence.json && ls -la /tmp/evidence.json
+              /tmp/blastlens && python3 -m pip install --user pydantic
+              "typer>=0.12" pyyaml rich && mkdir -p out &&
+              PYTHONPATH=/tmp/blastlens/src python3 -c "import sys; from
+              blastlens.cli import app;
+              sys.argv=['blastlens','evidence','--repo','.','--change','examples/changes/risky-checkout.diff','--out','out/evidence.json'];
+              app()" && ls -la out/evidence.json && cp -f out/evidence.json
+              /tmp/evidence.json
             shell: bash
           name: Build evidence
           id: Build_evidence
